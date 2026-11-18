@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: cafe-launch-carousel
+expected_outcome: |
+  A finished ~6-slide 4:5 Instagram carousel rendered as PNG images, with a clear concept, consistent system (black + #D2561E, serif display), correct facts (3 flavours, 220 rupees, Jubilee Hills, next Friday, bar only), no fake product photos, legible at phone size, and a caption.

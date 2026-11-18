@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Static post</title>
+<!--
+  static-post-studio base template.
+  Copy into the post folder as slides.html. Keep ONE system (tokens + 1–3 layouts) for the whole carousel.
+  Delete the demo slides you don't use. Render with:
+      python <skill>/scripts/render.py slides.html out
+  Every slide is a <section class="slide ...">. Size comes from --W/--H (default 1080x1350, 4:5).
+  Opt-outs for the QA script: data-bleed (text may cross the safe margin on purpose), data-micro (legal/micro text).
+
+  LAYOUT CLASSES (pick per slide; mix at most 2–3 per carousel)
+    L-type       pure typographic statement (hook covers, quotes, rules)
+    L-dissolve   photo in lower 2/3 that dissolves upward into a calm field; headline sits on the calm part
+    L-scrim      full-bleed photo + floor-fade scrim; statement bottom-left
+    L-corners    full-bleed portrait; information pinned to the four corners (speaker, launch, announcement)
+    L-split      type panel on top, image below (add .pano to run one image across several slides)
+    L-hero       product/object hero on a flat colour field, name in display type
+    L-explainer  solid field, headline with a boxed keyword, icon row, short body (education)
+    L-zine       poster/zine: rotated wordmark, ticket-frame photo, stickers, mono info list (events, culture)
+
+  COMPONENTS
+    .logo  .swipe  .count  .pill  .hl (boxed keyword)  .em-i (italic switch)  .ticket  .sticker
+    .rule  .icons  .grain (add to a slide)  .ph (placeholder: never ship one)
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Swap families to the brand's. Max 2 families (+1 utility mono) per post. -->
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=Inter+Tight:wght@400;500;600;800&family=JetBrains+Mono:wght@500&display=block" rel="stylesheet">
+<style>
+/* ───────── 1. TOKENS: the whole brand lives here ───────── */
+:root{
+  --W:1080px; --H:1350px;            /* 4:5. 3:4 → 1440, 1:1 → 1080, story → 1920 */
+  --m:88px;                          /* outer margin (>= 64 safe) */
+  --u:8px;                           /* spacing unit: every gap is a multiple */
+
+  /* colour: 60 field / 30 ink+support / 10 accent */
+  --field:#F4F0E8;  --field-2:#E9E3D7;
+  --ink:#16140F;    --ink-2:#5E5A52;  /* body / muted (check contrast >= 4.5:1) */
+  --accent:#C8462C;                  /* ONE accent. Used for ~10% of the area */
+  --on-accent:#FFFFFF;
+  --dark:#14130F;  --on-dark:#F4F0E8;
+
+  /* type */
+  --display:"Fraunces", Georgia, serif;
+  --text:"Inter Tight", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, monospace;
+  --h1:112px; --h2:84px; --h3:56px; --body:36px; --small:26px; --micro:18px;
+  --lh-tight:1.0; --lh-body:1.3;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#6f6f6f;display:flex;flex-direction:column;align-items:center;gap:48px;padding:48px 0;font-family:var(--text);color:var(--ink)}
+.slide{position:relative;width:var(--W);height:var(--H);overflow:hidden;background:var(--field);isolation:isolate}
+.slide.dark{background:var(--dark);color:var(--on-dark)}
+.slide.dark .muted{color:color-mix(in srgb,var(--on-dark) 70%,transparent)}
+.slide.accent{background:var(--accent);color:var(--on-accent)}
+img.fill,.fill{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+
+/* ───────── 2. TYPE ───────── */
+.display{font-family:var(--display);font-weight:400;line-height:var(--lh-tight);letter-spacing:-.02em}
+.h1{font-size:var(--h1)} .h2{font-size:var(--h2)} .h3{font-size:var(--h3)}
+.body{font-size:var(--body);line-height:var(--lh-body);max-width:30ch}
+.small{font-size:var(--small);line-height:1.35}
+.micro{font-size:var(--micro);line-height:1.3;opacity:.75}
+.caps{text-transform:uppercase;letter-spacing:.08em}          /* caps always get +5–12% tracking */
+.kicker{font:500 var(--small)/1 var(--mono);text-transform:uppercase;letter-spacing:.14em}
+.muted{color:var(--ink-2)}
+.em-i{font-style:italic}                                         /* italic switch inside a roman line */
+.heavy{font-weight:800}
+.hl{background:var(--ink);color:var(--field);padding:0 .14em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.slide.dark .hl{background:var(--on-dark);color:var(--dark)}
+.accent-t{color:var(--accent)}
+
+/* ───────── 3. FURNITURE ───────── */
+.logo{position:absolute;top:var(--m);left:var(--m);height:44px;display:flex;align-items:center;gap:12px;font:600 26px/1 var(--text);letter-spacing:.02em}
+.logo .mark{width:40px;height:40px;border-radius:50%;background:currentColor}
+.count{position:absolute;top:var(--m);right:var(--m);font:500 24px/44px var(--mono);letter-spacing:.12em;opacity:.7}
+.swipe{position:absolute;right:var(--m);bottom:var(--m);display:flex;align-items:center;gap:14px;font:600 24px/1 var(--text);letter-spacing:.06em;text-transform:uppercase}
+.swipe::after{content:"";width:64px;height:2px;background:currentColor;box-shadow:0 0 0 0}
+.pill{display:inline-flex;align-items:center;gap:12px;padding:16px 28px;border-radius:999px;background:rgba(20,19,15,.78);color:#fff;font:500 28px/1.2 var(--text);backdrop-filter:blur(6px)}
+.rule{height:2px;background:currentColor;opacity:.25;width:100%}
+.icons{display:flex;gap:0}
+.icons>div{flex:1;display:flex;flex-direction:column;align-items:center;gap:14px;font:500 26px/1.2 var(--text);text-align:center;padding:0 12px;border-left:2px solid color-mix(in srgb,currentColor 25%,transparent)}
+.icons>div:first-child{border-left:0}
+.icons svg{width:56px;height:56px;stroke:currentColor;fill:none;stroke-width:2.2}
+.grain::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:50;opacity:.16;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.slide.dark.grain::after{mix-blend-mode:screen;opacity:.10}
+.ph{position:absolute;display:grid;place-items:center;text-align:center;padding:40px;font:500 24px/1.3 var(--mono);color:#fff;
+  background:repeating-linear-gradient(45deg,#8a8a8a 0 18px,#7d7d7d 18px 36px);outline:4px dashed #ff3b30;outline-offset:-4px}
+
+/* ───────── 4. LAYOUTS ───────── */
+/* L-type */
+.L-type .stack{position:absolute;left:var(--m);right:var(--m);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:calc(var(--u)*4)}
+
+/* L-dissolve: image dissolves upward into the field; text never on busy pixels */
+.L-dissolve .media{position:absolute;left:0;right:0;bottom:0;height:60%}
+.L-dissolve .media::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(to bottom,var(--field) 0%,color-mix(in srgb,var(--field) 0%,transparent) 38%)}
+.L-dissolve .head{position:absolute;z-index:3;left:var(--m);right:var(--m);top:calc(var(--m) + 96px);text-align:center;display:flex;flex-direction:column;gap:calc(var(--u)*2);align-items:center}
+.L-dissolve .head .t1{font:500 44px/1.05 var(--text);text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2)}
+.L-dissolve .head .t2{font:800 italic 76px/1.0 var(--text);text-transform:uppercase;letter-spacing:.02em}
+.L-dissolve .pill{position:absolute;left:50%;bottom:var(--m);transform:translateX(-50%);z-index:2;white-space:nowrap}
+
+/* L-scrim: floor fade for legibility */
+.L-scrim::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(0,0,0,.82) 0%,rgba(0,0,0,.45) 34%,rgba(0,0,0,0) 62%)}
+.L-scrim .copy{position:absolute;left:var(--m);right:var(--m);bottom:var(--m);z-index:2;color:#fff;display:flex;flex-direction:column;gap:calc(var(--u)*3)}
+.L-scrim .logo,.L-scrim .count{z-index:2;color:#fff}
+
+/* L-corners: face owns the centre, info owns the corners */
+.L-corners{background:#000;color:#fff}
+.L-corners::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(0,0,0,.9),rgba(0,0,0,0) 45%),linear-gradient(to bottom,rgba(0,0,0,.55),rgba(0,0,0,0) 22%)}
+.L-corners .c{position:absolute;z-index:2;display:flex;flex-direction:column;gap:8px}
+.L-corners .tl{top:var(--m);left:var(--m)} .L-corners .tr{top:var(--m);right:var(--m);text-align:right;align-items:flex-end}
+.L-corners .ml{left:var(--m);bottom:calc(var(--m) + 210px)} .L-corners .mr{right:var(--m);bottom:calc(var(--m) + 170px);text-align:right;align-items:flex-end}
+.L-corners .bl{left:var(--m);bottom:var(--m)} .L-corners .br{right:var(--m);bottom:var(--m);text-align:right;align-items:flex-end}
+
+/* L-split (+ .pano: one wide image across N slides; set --i (0-based) and --n on each slide) */
+.L-split .panel{position:absolute;left:0;right:0;top:0;height:48%;padding:calc(var(--m) + 72px) var(--m) var(--m);display:flex;flex-direction:column;gap:calc(var(--u)*4);align-items:center;text-align:center}
+.L-split .media{position:absolute;left:0;right:0;bottom:0;height:52%;overflow:hidden}
+.pano .media .strip{position:absolute;top:0;bottom:0;left:calc(var(--i) * -100%);width:calc(var(--n) * 100%)}
+.pano .media .strip>*{width:100%;height:100%;object-fit:cover}
+
+/* L-hero: one object on a flat colour world */
+.L-hero .name{position:absolute;left:var(--m);right:var(--m);bottom:var(--m);font-family:var(--display);font-size:var(--h1);line-height:.95;letter-spacing:-.02em}
+.L-hero .object{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:70%;aspect-ratio:1}
+
+/* L-explainer */
+.L-explainer .body-area{position:absolute;left:var(--m);right:var(--m);top:calc(var(--m) + 120px);display:flex;flex-direction:column;gap:calc(var(--u)*6)}
+.L-explainer .h2{font-family:var(--text);font-weight:500;letter-spacing:-.02em;line-height:1.08;font-size:72px}
+
+/* L-zine */
+.L-zine .wordmark{position:absolute;right:-40px;top:50%;transform:translateY(-50%) rotate(90deg);transform-origin:center;font:800 300px/0.8 var(--text);letter-spacing:-.04em;color:var(--accent);white-space:nowrap}
+.ticket{position:absolute;overflow:hidden;
+  -webkit-mask:radial-gradient(circle 26px at 0 50%,#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 26px at 100% 50%,#0000 98%,#000) right/51% 100% no-repeat;
+          mask:radial-gradient(circle 26px at 0 50%,#0000 98%,#000) left/51% 100% no-repeat,radial-gradient(circle 26px at 100% 50%,#0000 98%,#000) right/51% 100% no-repeat}
+.sticker{position:absolute;padding:14px 26px;font:800 34px/1 var(--text);text-transform:uppercase;letter-spacing:.04em;background:var(--accent);color:var(--on-accent);border:4px solid var(--ink);border-radius:14px;box-shadow:6px 6px 0 var(--ink);transform:rotate(-7deg)}
+.info{font:500 26px/1.45 var(--mono);text-transform:uppercase;letter-spacing:.06em}
+</style>
+</head>
+<body>
+
+<!-- DEMO 1 · L-type cover (hook) -->
+<section class="slide L-type grain">
+  <div class="logo"><span class="mark"></span>Brand</div>
+  <div class="count">01 / 06</div>
+  <div class="stack">
+    <div class="kicker accent-t">A field guide</div>
+    <h1 class="display h1">Most posts are <span class="em-i">decorated</span>.<br>Few are <span class="em-i accent-t">designed</span>.</h1>
+    <p class="body muted">Six decisions every good static post makes before anyone opens a design tool.</p>
+  </div>
+  <div class="swipe">Swipe</div>
+</section>
+
+<!-- DEMO 2 · L-dissolve (two-tier headline + takeaway pill) -->
+<section class="slide L-dissolve">
+  <div class="logo"><span class="mark"></span>Brand</div>
+  <div class="head">
+    <div class="t1">Is your feed changing</div>
+    <div class="t2">the first impression?</div>
+    <p class="small muted" style="max-width:34ch">What stops a thumb today is not what stopped it last year.</p>
+  </div>
+  <div class="media"><div class="ph fill">IMAGE: calm, wide, daylight photo. Busy detail in the lower half only.</div></div>
+  <div class="pill">One idea per slide.</div>
+</section>
+
+<!-- DEMO 3 · L-explainer (boxed keyword + icon row) -->
+<section class="slide L-explainer dark">
+  <div class="logo"><span class="mark"></span>Brand</div>
+  <div class="count">03 / 06</div>
+  <div class="body-area">
+    <h2 class="h2">A carousel is a <span class="hl">story</span>, not a stack of slides.</h2>
+    <div class="icons">
+      <div><svg viewBox="0 0 24 24"><path d="M4 20V8l8-4 8 4v12M9 20v-6h6v6"/></svg>Hook</div>
+      <div><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>Tension</div>
+      <div><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg>Payoff</div>
+      <div><svg viewBox="0 0 24 24"><path d="M4 12h14M13 6l6 6-6 6"/></svg>Action</div>
+    </div>
+    <p class="body muted">Each slide earns the next swipe. If one slide could be deleted without loss, delete it.</p>
+  </div>
+</section>
+
+<!-- DEMO 4 · L-split + .pano (image continues across slides 4–5) -->
+<section class="slide L-split pano" style="--i:0;--n:2">
+  <div class="panel">
+    <h2 class="display h2">Then choose<br><span class="em-i">the frame.</span></h2>
+    <p class="small muted" style="max-width:32ch">A seam that carries an image makes the next swipe feel inevitable.</p>
+  </div>
+  <div class="media"><div class="strip"><div class="ph" style="position:relative;inset:auto">PANORAMA: one 2160×700 image split across two slides</div></div></div>
+</section>
+<section class="slide L-split pano" style="--i:1;--n:2">
+  <div class="panel">
+    <h2 class="display h2">Keep the grid.<br><span class="em-i">Change the content.</span></h2>
+  </div>
+  <div class="media"><div class="strip"><div class="ph" style="position:relative;inset:auto">PANORAMA: one 2160×700 image split across two slides</div></div></div>
+</section>
+
+<!-- DEMO 6 · L-type close (CTA) -->
+<section class="slide L-type accent">
+  <div class="logo"><span class="mark"></span>Brand</div>
+  <div class="stack">
+    <h2 class="display h2">Save this for the<br>next <span class="em-i">brief</span>.</h2>
+    <div class="rule" style="opacity:.5"></div>
+    <p class="body">Comment <b>“GRID”</b> and we’ll send the template.</p>
+  </div>
+</section>
+
+</body>
+</html>

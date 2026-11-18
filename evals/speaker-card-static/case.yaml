@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: speaker-card-static
+expected_outcome: |
+  A single finished Instagram static (rendered PNG) that is type-led (no fake portrait), shows speaker name, role, talk title, date, time and venue legibly with clear hierarchy, a warm chai-toned palette, playful-but-grown-up tone, and a caption.
